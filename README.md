@@ -1,3 +1,6 @@
+> [!TIP]
+> **Este repositório é um Mirror.** O desenvolvimento principal e a "Soberania do Código" ocorrem no [Codeberg](https://codeberg.org/HeadHSM/netdevops-projeto_01).
+
 # 🚀 NetDevOps Lab #01
 
 Laboratório de automação focado na transição de IT Support para **Infrastructure as Code (IaC)**. O objetivo é provisionar e gerenciar um ambiente completo utilizando ferramentas soberanas e open-source.
