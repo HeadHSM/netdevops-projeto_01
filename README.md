@@ -34,7 +34,7 @@ Crie os arquivos abaixo dentro da pasta netdevops-projeto_01:
 
 ```ini
 [debian]
-WEB_SERVER ansible_host=SEU_IP ansible_user=SEU_USUARIO
+WEB_SERVER ansible_host=<IP_DO_SERVIDOR_DEBIAN> ansible_user=<SEU_USUARIO_SUDO>
 ```
 
 1. Ansible.cfg
@@ -91,13 +91,13 @@ ssh-keygen -t ed25519 -C "nome-exemplo"
 Enviar a chave para o Alvo (Debian):
 
 ```bash
-ssh-copy-id SEU_USUARIO@SEU_IP
+ssh-copy-id <SEU_USUARIO_SUDO>@<IP_DO_SERVIDOR_DEBIAN>
 ```
 
 Testar conexão:
 
 ```bash
-ssh SEU_USUARIO@SEU_IP
+ssh <SEU_USUARIO_SUDO>@<IP_DO_SERVIDOR_DEBIAN>
 ```
 
 # Deve entrar direto, sem pedir senha
