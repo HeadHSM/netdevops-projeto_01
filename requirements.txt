@@ -1,3 +1,0 @@
-sqlalchemy # Gestão de Banco de Dados e ORM
-python-dotenv # Variáveis de Ambiente e Configuração
-requests # Requisições HTTP (Útil para APIs e futuro NetBox)

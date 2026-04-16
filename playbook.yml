@@ -1,0 +1,28 @@
+---
+- name: PROVEDOR DE SERVIÇO WEB
+  hosts: debian
+  become: true
+
+  tasks:
+    - name: VERIFICAR CONEXÂO COM O SERVIDOR
+      ping:
+
+    - name: GARANTIR QUE O NGINX ESTÀ INSTALADO
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes # Realiza o comando apt update
+
+    - name: ENVIAR INDEX.HTML
+      copy:
+        src: ./index.html
+        dest: /var/www/html/index.html
+        owner: www-data
+        group: www-data
+        mode: "0644"
+
+    - name: GARANTIR QUE O NGINX ESTÀ RODANDO
+      service:
+        name: nginx
+        state: started
+        enabled: yes

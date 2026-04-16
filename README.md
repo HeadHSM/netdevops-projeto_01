@@ -1,55 +1,133 @@
 > [!TIP]
 > **Este repositório é um Mirror.** O desenvolvimento principal e a "Soberania do Código" ocorrem no [Codeberg](https://codeberg.org/HeadHSM/netdevops-projeto_01).
 
-# 🚀 NetDevOps Lab #01
+# 🚀 NetDevOps Lab #01: Primeiros Passos com Ansible
 
-Laboratório de automação focado na transição de IT Support para **Infrastructure as Code (IaC)**. O objetivo é provisionar e gerenciar um ambiente completo utilizando ferramentas soberanas e open-source.
-
-> **Status:** 🏗️ Fase de Provisionamento (Containers & Automação)
+Este projeto é um laboratório inicial focado na transição de IT Support para **NetDevOps**. O objetivo é aprender a gerenciar infraestrutura através de código (IaC), utilizando um ambiente isolado e seguro. Utilizei o Sistema GNU/Linux Debian em um ambiente Virtual QEMU/KVM utilizando IP Fixo para o Sistema Operacional. **Futuramente pretendo realizar automações com Sistemas BSD, como o FreeBSD.**
 
 ---
 
-## 📍 Roadmap de Execução
+## 🏗️ Ambiente de Controle (Host openSUSE)
 
-### 1. Fundação (Control Node)
+Para este projeto, utilizaremos um ambiente virtual Python (**VENV**) para isolar o Ansible e suas dependências, mantendo o sistema operacional limpo.
 
-- [x] **Python VENV:** Ambiente isolado no openSUSE Tumbleweed.
-- [x] **Dockerized Ansible:** Nó de controle portátil via Alpine Linux.
-- [x] **Makefile Orchestration:** Interface unificada para gestão do projeto.
+### 1. Preparação do Ambiente
 
-### 2. Infraestrutura (The Target)
+```bash
+# Criar a pasta do projeto
+mkdir ~/netdevops-projeto_01 && cd ~/netdevops-projeto_01
 
-- [ ] **Target Server:** Provisionamento automatizado de instâncias Debian.
-- [ ] **Network:** Configuração de rede NAT/Bridge para comunicação entre nós.
-- [ ] **SSH Auth:** Gestão automatizada de chaves e acesso seguro.
+# Criar e ativar o ambiente virtual
+python3 -m venv .venv
+source .venv/bin/activate
 
-### 3. Source of Truth & Data
+# Instalar o Ansible
+pip install --upgrade pip
+pip install ansible
+```
 
-- [ ] **SQLAlchemy DB:** Inventário local (SQLite) para gestão de ativos.
-- [ ] **Auth Script:** Validação de operador via Python antes do deploy.
-- [ ] **Environment:** Sincronização de segredos via `.env`.
+📂 Estrutura de Arquivos
 
-### 4. Orquestração & Deploy
+Crie os arquivos abaixo dentro da pasta netdevops-projeto_01:
 
-- [ ] **Ansible Playbooks:** Configuração de serviços e Docker no Alvo.
-- [ ] **Web Service:** Deployment automatizado de Nginx.
-- [ ] **Error Handling:** Resiliência de sockets e conexões.
+1. inventory.ini
 
+```ini
+[debian]
+WEB_SERVER ansible_host=SEU_IP ansible_user=SEU_USUARIO
+```
+
+1. Ansible.cfg
+
+```ini
+[defaults]
+inventory = ./inventory.ini
+host_key_checking = False # Não recomendado para a Produção
+```
+
+1. playbook.yml
+
+```yml
 ---
+- name: PROVEDOR DE SERVIÇO WEB
+  hosts: debian
+  become: true
 
-## 🛠️ Stack Tecnológica
+  tasks:
+    - name: VERIFICAR CONEXÂO COM O SERVIDOR
+      ping:
 
-- **OS:** openSUSE Tumbleweed (Host) / Debian (Target)
-- **Languages:** Python 3.13 (SQLAlchemy / Dotenv)
-- **Tools:** Ansible, Docker & Make
-- **Soberania:** Codeberg (Principal) / GitHub (Mirror)
+    - name: GARANTIR QUE O NGINX ESTÀ INSTALADO
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes # Realiza o comando apt update
 
----
+    - name: ENVIAR INDEX.HTML
+      copy:
+        src: ./index.html
+        dest: /var/www/html/index.html
+        owner: www-data
+        group: www-data
+        mode: "0644"
 
-## 📝 Key Concepts (Aprendizados)
+    - name: GARANTIR QUE O NGINX ESTÀ RODANDO
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+```
 
-- **Idempotência:** Garantir que o `make up` seja executável N vezes sem falhas.
-- **Abstração:** Uso de Docker para padronizar o ambiente de automação.
-- **Soberania Digital:** Autonomia na escolha de ferramentas e hospedagem de código.
+## 🔑 Configuração de Acesso (SSH Keys)
+
+Para que a automação funcione de forma fluida, é recomendado configurar o acesso via chaves SSH, eliminando a necessidade de digitar senhas manualmente.
+
+1. **Gerar chave no Host (openSUSE):**
+
+```bash
+ssh-keygen -t ed25519 -C "nome-exemplo"
+```
+
+Enviar a chave para o Alvo (Debian):
+
+```bash
+ssh-copy-id SEU_USUARIO@SEU_IP
+```
+
+Testar conexão:
+
+```bash
+ssh SEU_USUARIO@SEU_IP
+```
+
+# Deve entrar direto, sem pedir senha
+
+## 🚀 Execução
+
+Certifique-se de que o .venv está ativo e execute:
+
+Testar a comunicação:
+
+```bash
+ansible all -m ping
+```
+
+Como o Playbook utiliza `become: true` para tarefas que exigem privilégios de root (instalação de pacotes e gerência de serviços), você deve informar ao Ansible como lidar com a senha do `sudo`.
+
+Utilize o parâmetro `-K` (maiúsculo) para que o Ansible solicite a senha de **BECOME** antes de iniciar as tarefas:
+
+```bash
+ansible-playbook playbook.yml -K
+```
+
+📝 Conceitos Aprendidos
+
+VENV: Isolamento de ferramentas de automação.
+
+Inventário: Organização e identificação de máquinas.
+
+Módulos: Tradução de comandos genéricos para o SO alvo (Debian).
+
+Idempotência: Garantia de que o estado final seja sempre o mesmo, sem erros em múltiplas execuções.
 
 ---
